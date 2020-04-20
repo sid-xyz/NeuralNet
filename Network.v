@@ -10,22 +10,22 @@ module Network(
 
 wire [1:0][15:0] z;
 
-Neuron_Linear HL1(
+Neuron_ReLU HL1(
 	.x(x),
 	.w(w1),
 	.y(z[0])
 );
 
-Neuron_Linear HL2(
+Neuron_ReLU HL2(
 	.x(x),
 	.w(w2),
 	.y(z[1])
 );
 
-Neuron_Linear OUT(
+Neuron_Sigmoid OUT(
 	.x(z),
 	.w(v),
 	.y(y)
 );
 
-endmodule // NNet
+endmodule // Network

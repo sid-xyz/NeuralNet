@@ -1,5 +1,8 @@
-*.vcd
-**/*.vcd
-*.txt
-.DS_Store
+*
 !*.*
+.DS_Store
+*.vcd
+*.evcd
+*.ghw
+*.txt
+*.zip

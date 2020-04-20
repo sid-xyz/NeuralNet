@@ -29,3 +29,47 @@ Adder A1(
 assign y = out + w[0];
 
 endmodule // Neuron_Linear
+
+
+module Neuron_Sigmoid(
+	input	[1:0][15:0]	x,
+	input	[2:0][15:0]	w,
+	output	[15:0]		y
+);
+
+wire [15:0] z;
+
+Neuron_Linear ActVal(
+	.x(x),
+	.w(w),
+	.y(z)
+);
+
+Sigmoid sigmoidActFunc(
+	.x(z),
+	.z(y)
+);
+
+endmodule // Neuron_Sigmoid
+
+
+module Neuron_ReLU(
+	input	[1:0][15:0]	x,
+	input	[2:0][15:0]	w,
+	output	[15:0]		y
+);
+
+wire [15:0] z;
+
+Neuron_Linear ActVal(
+	.x(x),
+	.w(w),
+	.y(z)
+);
+
+ReLU reluActFunc(
+	.x(z),
+	.z(y)
+);
+
+endmodule // Neuron_ReLU
