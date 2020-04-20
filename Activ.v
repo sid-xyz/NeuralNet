@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 
-module ReLU(
-	input	[15:0]	x,
-	output	[15:0]	z
+module ReLU #(parameter BITS = 16) (
+	input	[BITS-1:0]	x,
+	output	[BITS-1:0]	z
 );
 
-assign z = x[15] ? 16'h00_00 : x;
+assign z = x[BITS-1] ? 0 : x;
 
 endmodule // relu
 
