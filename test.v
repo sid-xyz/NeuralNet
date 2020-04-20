@@ -38,23 +38,40 @@
 
 module Neuron_TB();
 
+parameter N = 6;
+parameter B = 16;
+
 reg clk, TR, VL;
 wire FPH, FPO, BPH, BPO;
-reg [5:0][15:0] x, w;
-reg [15:0] b;
-wire [15:0] out;
+reg [N-1:0][B-1:0] x;
+reg [N-1:0][B-1:0] w;
+reg [B-1:0] b;
+wire [B-1:0] out, dz2;
 
-Neuron_ReLU #(.N(6), .BITS(16)) one(
+// Neuron_ReLU #(.N(6), .BITS(16)) one(
+// 	.clk(clk),
+// 	.x(x),
+// 	.w(w),
+// 	.b(b),
+// 	.FP(FPH),
+// 	.BP(BPH),
+// 	.dZ_in(16'h01_00),
+// 	.W_in(16'h00_80),
+// 	.lr(16'h01_00),
+// 	.y(out)
+// );
+
+Neuron_Sigmoid #(.N(N), .BITS(B)) one(
 	.clk(clk),
 	.x(x),
 	.w(w),
 	.b(b),
 	.FP(FPH),
 	.BP(BPH),
-	//.y_true(16'h01_00),
-	.dZ_in(16'h01_00),
-	.W_in(16'h00_80),
-	.y(out)
+	.y_true(16'h00_00),
+	.lr(16'hFF_00),
+	.y(out),
+	.dZ(dz2)
 );
 
 ArchCTRL myAC(

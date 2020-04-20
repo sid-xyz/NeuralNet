@@ -14,6 +14,12 @@ reg [1:0] TV;
 
 assign {FPH, FPO, BPH, BPO} = Signal;
 
+initial begin
+	count <= 6'b000000;
+	Signal <= 4'b0000;
+	TV <= 2'b00;
+end
+
 always @ (posedge clk) begin
 	if (TR) begin
 		TV <= 2'b10;
@@ -47,10 +53,10 @@ always @ (posedge clk) begin
 	8'b10_100110: begin
 		Signal <= 4'b0011;
 	end
-	8'b10_101110: begin
+	8'b10_101111: begin
 		Signal <= 4'b0001;
 	end
-	8'b10_110110: begin
+	8'b10_110111: begin
 		Signal <= 4'b0000;
 		count <= 6'b000000;
 		TV <= 2'b00;
