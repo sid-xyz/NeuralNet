@@ -1,0 +1,5 @@
+*.vcd
+**/*.vcd
+*.txt
+.DS_Store
+!*.*
