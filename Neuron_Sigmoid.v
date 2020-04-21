@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Neuron_Sigmoid #(parameter N = 2, parameter BITS = 16) (
+module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 16) (
 	input						clk,
 	input						FP,
 	input						BP,
@@ -10,7 +10,7 @@ module Neuron_Sigmoid #(parameter N = 2, parameter BITS = 16) (
 	input	[BITS-1:0]			y_true,
 	input	[BITS-1:0]			lr,
 	output	[BITS-1:0]			y,
-	output	[BITS-1:0]			dZ
+	output	[BITS-1:0]			dZ_out
 );
 
 reg [4:0] itr1, itr2, itr3;
@@ -47,13 +47,27 @@ Adder AD2(
 	.C(S2)
 );
 
-Sigmoid sigmoidActFunc(
+Sigmoid_16 sigmoidActFunc(
 	.x(S2),
 	.z(y)
 );
 
 always @ (posedge clk) begin
-	if (FP) begin
+	if ({FP,BP} == 2'b00) begin						//Forward Setup
+		itr1 = 5'b00000;
+		itr2 = 5'b00001;
+		INC <= 1'b1;
+		A1 <= x[itr1];
+		B1 <= w[itr1];
+		A2 <= x[itr2];
+		B2 <= w[itr2];
+		R1 <= 16'h00_00;
+		R2 <= 16'h00_00;
+		R3 <= 16'h00_00;
+		R4 <= b;
+	end
+
+	else if ({FP,BP} == 2'b10) begin				//Forward Propagation
 		itr1 = (INC) ? itr1 + 5'b00010 : 5'b00000;
 		itr2 = (INC) ? itr1 + 1 : 0;
 		INC = (itr1 == N) ? 1'b0 : INC;
@@ -69,7 +83,7 @@ always @ (posedge clk) begin
 		OUT <= y;
 	end
 
-	else if (BP) begin
+	else if ({FP,BP} == 2'b01) begin				//Backward Propagation
 		dz = (itr1 == 5'b00000) ? S2 : dz;
 		itr1 <= itr1 + 5'b00001;
 		//INC <= (itr1 == N) ? 1'b0 : INC;
@@ -83,38 +97,24 @@ always @ (posedge clk) begin
 		R2 <= AB1;
 		WL[itr3] <= S1;
 	end
+
+	else if ({FP,BP} == 2'b11) begin				//Backward Setup
+		itr1 <= 5'b00000;
+		itr2 <= 5'b00000;
+		itr3 <= 5'b00000;
+		INC <= 1'b1;
+		A1 <= 16'h00_00;
+		B1 <= 16'h00_00;
+		A2 <= 16'h00_00;
+		B2 <= 16'h00_00;
+		R1 <= 16'h00_00;
+		R2 <= 16'h00_00;
+		R3 <= OUT;
+		R4 <= (~y_true) + 1;
+		WL <= {w, b};
+	end
 end
 
-assign dZ = dz;
-
-always @ (posedge FP) begin
-	itr1 = 5'b00000;
-	itr2 = 5'b00001;
-	INC <= 1'b1;
-	A1 <= x[itr1];
-	B1 <= w[itr1];
-	A2 <= x[itr2];
-	B2 <= w[itr2];
-	R1 <= 16'h00_00;
-	R2 <= 16'h00_00;
-	R3 <= 16'h00_00;
-	R4 <= b;
-end
-
-always @ (posedge BP) begin
-	itr1 <= 5'b00000;
-	itr2 <= 5'b00000;
-	itr3 <= 5'b00000;
-	INC <= 1'b1;
-	A1 <= 16'h00_00;
-	B1 <= 16'h00_00;
-	A2 <= 16'h00_00;
-	B2 <= 16'h00_00;
-	R1 <= 16'h00_00;
-	R2 <= 16'h00_00;
-	R3 <= OUT;
-	R4 <= (~y_true) + 1;
-	WL <= {w, b};
-end
+assign dZ_out = dz;
 
 endmodule

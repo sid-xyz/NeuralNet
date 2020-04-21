@@ -38,7 +38,7 @@
 
 module Neuron_TB();
 
-parameter N = 6;
+parameter N = 30;
 parameter B = 16;
 
 reg clk, TR, VL;
@@ -66,8 +66,8 @@ Neuron_Sigmoid #(.N(N), .BITS(B)) one(
 	.x(x),
 	.w(w),
 	.b(b),
-	.FP(FPH),
-	.BP(BPH),
+	.FP(FPO),
+	.BP(BPO),
 	.y_true(16'h00_00),
 	.lr(16'hFF_00),
 	.y(out),
@@ -111,8 +111,8 @@ always begin
 	#10 TR <= 1'b1;
 	#20 TR <= 1'b0;
 	#1080 ;
-	#20 VL <= 1'b1;
-	#20 VL <= 1'b0;
+	//#20 VL <= 1'b1;
+	#40 VL <= 1'b0;
 	#440 ;
 	#20 $stop;
 end
