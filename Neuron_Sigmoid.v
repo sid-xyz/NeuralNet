@@ -10,7 +10,9 @@ module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 16) (
 	input	[BITS-1:0]			y_true,
 	input	[BITS-1:0]			lr,
 	output	[BITS-1:0]			y,
-	output	[BITS-1:0]			dZ_out
+	output						yhat,
+	output	[BITS-1:0]			dZ_out,
+	output	[N:0][BITS-1:0]		W_out
 );
 
 reg [4:0] itr1, itr2, itr3;
@@ -18,6 +20,7 @@ reg INC;
 reg [BITS-1:0] ACT, OUT, dz;
 reg [N-1:0][BITS-1:0] dw;
 reg [N:0][BITS-1:0] WL;
+wire [BITS-1:0] val;
 
 wire [BITS-1:0] AB1, AB2, S1, S2;
 reg [BITS-1:0] A1, B1, A2, B2;
@@ -49,8 +52,13 @@ Adder AD2(
 
 Sigmoid_16 sigmoidActFunc(
 	.x(S2),
-	.z(y)
+	.z(val)
 );
+
+assign dZ_out = dz;
+assign W_out = WL;
+assign yhat = ~ACT[15];
+assign y = OUT;
 
 always @ (posedge clk) begin
 	if ({FP,BP} == 2'b00) begin						//Forward Setup
@@ -80,7 +88,7 @@ always @ (posedge clk) begin
 		R3 <= S1;
 		R4 <= S2;
 		ACT <= S2;
-		OUT <= y;
+		OUT <= val;
 	end
 
 	else if ({FP,BP} == 2'b01) begin				//Backward Propagation
@@ -114,7 +122,5 @@ always @ (posedge clk) begin
 		WL <= {w, b};
 	end
 end
-
-assign dZ_out = dz;
 
 endmodule

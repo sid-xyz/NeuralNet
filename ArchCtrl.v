@@ -5,19 +5,26 @@ module ArchCTRL(
 	output	FPH,
 	output	FPO,
 	output	BPH,
-	output	BPO
+	output	BPO,
+	output	S_Train,
+	output	S_Error
 );
 
 reg [5:0] count;
 reg [3:0] Signal;
 reg [1:0] TV;
+reg ST, SE;
 
 assign {FPH, FPO, BPH, BPO} = Signal;
+assign S_Train = ST;
+assign S_Error = SE;
 
 initial begin
 	count <= 6'b000000;
 	Signal <= 4'b0000;
 	TV <= 2'b00;
+	ST <= 1'b0;
+	SE <= 1'b0;
 end
 
 always @ (negedge clk) begin
@@ -48,7 +55,7 @@ always @ (negedge clk) begin
 	8'b10_000000: begin			//Forward: Hidden Start
 		Signal <= 4'b1000;
 	end
-	8'b10_000100: begin			//Forward: Output Start
+	8'b10_000101: begin			//Forward: Output Start
 		Signal <= 4'b0100;
 	end
 	8'b10_010101: begin			//Backward: Output Start
@@ -68,8 +75,14 @@ always @ (negedge clk) begin
 	end
 	8'b10_110111: begin			//Training Complete
 		Signal <= 4'b0000;
+		//count <= 6'b000000;
+		//TV <= 2'b00;
+		ST <= 1'b1;
+	end
+	8'b10_111000: begin			//Training Complete
 		count <= 6'b000000;
 		TV <= 2'b00;
+		ST <= 1'b0;
 	end
 	// Validation
 	8'b01_000000: begin			//Forward: Hidden Start
@@ -80,8 +93,14 @@ always @ (negedge clk) begin
 	end
 	8'b01_010101: begin			//Validation Complete
 		Signal <= 4'b0000;
+		//count <= 6'b000000;
+		//TV <= 2'b00;
+		SE <= 1'b1;
+	end
+	8'b01_010110: begin			//Validation Complete
 		count <= 6'b000000;
 		TV <= 2'b00;
+		SE <= 1'b0;
 	end
 	endcase
 end

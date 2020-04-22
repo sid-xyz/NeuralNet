@@ -10,8 +10,8 @@ module Neuron_ReLU #(parameter N = 6, parameter BITS = 16) (
 	input	[BITS-1:0]			dZ_in,
 	input	[BITS-1:0]			W_in,
 	input	[BITS-1:0]			lr,
-	output	[BITS-1:0]			y
-	//output	[BITS:0]			W_out
+	output	[BITS-1:0]			y,
+	output	[N:0][BITS-1:0]		W_out
 );
 
 reg [4:0] itr1, itr2, itr3;
@@ -19,12 +19,14 @@ reg INC;
 reg [BITS-1:0] ACT, OUT, dz;
 reg [N-1:0][BITS-1:0] dw;
 reg [N:0][BITS-1:0] WL;
+wire [BITS-1:0] val;
 
 wire [BITS-1:0] AB1, AB2, S1, S2;
 reg [BITS-1:0] A1, B1, A2, B2;
 reg [BITS-1:0] R1, R2, R3, R4;
 
-//assign W_out = WL;
+assign W_out = WL;
+assign y = OUT;
 
 Multiplier M1(
 	.A(A1),
@@ -52,7 +54,7 @@ Adder AD2(
 
 ReLU reluActFunc(
 	.x(S2),
-	.z(y)
+	.z(val)
 );
 
 always @ (posedge clk) begin
@@ -84,12 +86,12 @@ always @ (posedge clk) begin
 		R3 <= S1;
 		R4 <= S2;
 		ACT <= S2;
-		OUT <= y;
+		OUT <= val;
 	end
 
 	else if ({FP,BP} == 2'b01) begin				//Backward Propagation
 		//dz = (itr1 == 5'b00000) ? AB2 : dz;
-		dz <= (itr1 == 5'b11111) ? ((ACT[15]) ? 0 : AB2) : dz;
+		dz = (itr1 == 5'b00000) ? ((ACT[15]) ? 0 : AB2) : dz;
 		itr1 <= itr1 + 5'b00001;
 		itr2 <= itr1;
 		itr3 <= itr2;
@@ -116,7 +118,7 @@ always @ (posedge clk) begin
 		R3 <= 16'h00_00;
 		R4 <= 16'h00_00;
 		WL <= {w, b};
-		XL <= {x, 16'h0100};
+		//XL <= {x, 16'h0100};
 	end
 end
 
