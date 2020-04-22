@@ -1,30 +1,32 @@
 `timescale 1ns / 1ps
 
+// Architecture Block
 module Architecture #(parameter NX = 6, parameter NH = 30, parameter BITS = 16) (
-	input						clk,
-	input						TR,
-	input						VL,
-	input	[NX-1:0][BITS-1:0]	x,
-	input	[BITS-1:0]			lr,
-	input	[BITS-1:0]			y,
+	input						clk,		//Clock
+	input						TR,			//Training Signal (from Control)
+	input						VL,			//Validation Signal (from Control)
+	input	[NX-1:0][BITS-1:0]	x,			//Input vector (from Pattern)
+	input	[BITS-1:0]			y,			//Output Label (from Pattern)
+	input	[BITS-1:0]			lr,			//Learning Rate (from Pattern)
 	//output	[BITS-1:0]			yhat,
 	output						yhat,
-	output						S_Train,
-	output						S_Error
+	output						S_Train,	//Training Pattern Complete (to Control)
+	output						S_Error		//Validation Pattern Complete (to Control)
 );
 
-wire FPH, FPO, BPH, BPO;	// Forward, Backward propagation
-wire [BITS-1:0] dz2;
+wire FPH, FPO, BPH, BPO;	// Forward, Backward propagation flags
+wire [BITS-1:0] dz2;		// dz of output neuron
+
+// Updated Weights
 wire [NX:0][BITS-1:0] WH [NH-1:0];
 wire [NH:0][BITS-1:0] WO;
 
+// Weights
 reg [NX:0][BITS-1:0] W1 [NH-1:0];
 reg [NH:0][BITS-1:0] W2;
 
-//wire [BITS-1:0] a1h [NH-1:0];
-//wire [NH-1:0][BITS-1:0] a1o;
-wire [NH-1:0][BITS-1:0] a1;
-wire [BITS-1:0] a2;
+wire [NH-1:0][BITS-1:0] a1;		//Outputs of hidden layer
+wire [BITS-1:0] a2;				//Output of output layer
 
 ArchCTRL archControl(
 	.clk(clk),
@@ -39,13 +41,19 @@ ArchCTRL archControl(
 );
 
 initial begin
-	$readmemh("w1.txt", W1);
+	//He Initialisation: randn * sqrt[2/n_(l-1)]
+	$readmemh("w1.txt", W1);	//Hidden layer weights (generated using MATLAB randn)
+
+	//Xavier Initialisation: randn * sqrt[1/n_(l-1)]
+	//Output layer weights (generated using MATLAB randn)
 	W2 <= 496'hffdc_ffe0_003c_ffda_ffc6_000a_005e_0001_000e_ffd4_004e_0006_0019_ffd4_0028_0012_ffca_0002_ffeb_0005_fff4_fff7_ffd0_fff1_0024_0052_ffca_006f_0047_0008__0000;
 end
 
 always @ (posedge clk) begin
 	if (S_Train) begin
-		W2 <= WO;
+		// Update weights to new weights (gradient descent)
+		W2 <= WO;		//Output layer
+		// Hidden layer
 		W1[0] <= WH[0];
 		W1[1] <= WH[1];
 		W1[2] <= WH[2];
@@ -79,11 +87,10 @@ always @ (posedge clk) begin
 	end
 end
 
-//assign a1o = { << {a1h}};
-
 genvar i;
+// Generate 'NH' number of neurons in the hidden layer
 generate
-	for (i=0; i < NH; i = i+1) begin
+	for (i = 0; i < NH; i = i+1) begin
 		Neuron_ReLU #(.N(NX), .BITS(BITS)) HiddenUnit (
 			.clk(clk),
 			.FP(FPH),

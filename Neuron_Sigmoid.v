@@ -1,30 +1,34 @@
 `timescale 1ns / 1ps
 
+//Neuron with Sigmoid activation function (output layer)
 module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 16) (
-	input						clk,
-	input						FP,
-	input						BP,
-	input	[N-1:0][BITS-1:0]	x,
-	input	[N-1:0][BITS-1:0]	w,
-	input	[BITS-1:0]			b,
-	input	[BITS-1:0]			y_true,
-	input	[BITS-1:0]			lr,
-	output	[BITS-1:0]			y,
-	output						yhat,
-	output	[BITS-1:0]			dZ_out,
-	output	[N:0][BITS-1:0]		W_out
+	input						clk,		//Clock
+	input						FP,			//Forward prop signal
+	input						BP,			//Backprop signal
+	input	[N-1:0][BITS-1:0]	x,			//Neuron inputs
+	input	[N-1:0][BITS-1:0]	w,			//Synaptic weights
+	input	[BITS-1:0]			b,			//Bias
+	input	[BITS-1:0]			y_true,		//True output label
+	input	[BITS-1:0]			lr,			// -Learning Rate
+	output	[BITS-1:0]			y,			//Neuron output
+	output						yhat,		//Predicted label
+	output	[BITS-1:0]			dZ_out,		//dz of the neuron (to previous layer)
+	output	[N:0][BITS-1:0]		W_out		//Updated weights
 );
 
-reg [4:0] itr1, itr2, itr3;
-reg INC;
+reg [4:0] itr1, itr2, itr3;		//iterators
+reg INC;						//Flag for incrementing itr
+
+//forward prop & backprop values
 reg [BITS-1:0] ACT, OUT, dz;
 reg [N-1:0][BITS-1:0] dw;
 reg [N:0][BITS-1:0] WL;
 wire [BITS-1:0] val;
 
-wire [BITS-1:0] AB1, AB2, S1, S2;
-reg [BITS-1:0] A1, B1, A2, B2;
-reg [BITS-1:0] R1, R2, R3, R4;
+//Multiplier & Adder Inputs & Outputs
+wire [BITS-1:0] AB1, AB2, S1, S2;	//Mult, Adder outputs
+reg [BITS-1:0] A1, B1, A2, B2;		//Mult inputs
+reg [BITS-1:0] R1, R2, R3, R4;		//Adder inputs
 
 Multiplier M1(
 	.A(A1),
@@ -55,17 +59,17 @@ Sigmoid_16 sigmoidActFunc(
 	.z(val)
 );
 
-assign dZ_out = dz;
-assign W_out = WL;
-assign yhat = ~ACT[15];
-assign y = OUT;
+assign dZ_out = dz;			//dz of neuron
+assign W_out = WL;			//Updated weights
+assign yhat = ~ACT[15];		//Predicted class (1 or 0)
+assign y = OUT;				//Neuron output
 
 always @ (posedge clk) begin
 	if ({FP,BP} == 2'b00) begin						//Forward Setup
 		itr1 = 5'b00000;
 		itr2 = 5'b00001;
 		INC <= 1'b1;
-		A1 <= x[itr1];
+		A1 <= x[itr1];		//x * w
 		B1 <= w[itr1];
 		A2 <= x[itr2];
 		B2 <= w[itr2];
@@ -79,16 +83,16 @@ always @ (posedge clk) begin
 		itr1 = (INC) ? itr1 + 5'b00010 : 5'b00000;
 		itr2 = (INC) ? itr1 + 1 : 0;
 		INC = (itr1 == N) ? 1'b0 : INC;
-		A1 <= INC ? x[itr1] : 0;
+		A1 <= INC ? x[itr1] : 0;			//x * w
 		B1 <= INC ? w[itr1] : 0;
 		A2 <= INC ? x[itr2] : 0;
 		B2 <= INC ? w[itr2] : 0;
-		R1 <= AB1;
+		R1 <= AB1;							//sum(x*w)
 		R2 <= AB2;
 		R3 <= S1;
 		R4 <= S2;
-		ACT <= S2;
-		OUT <= val;
+		ACT <= S2;			//Input of activation function
+		OUT <= val;			//Output of activation function (& neuron)
 	end
 
 	else if ({FP,BP} == 2'b01) begin				//Backward Propagation
@@ -97,13 +101,13 @@ always @ (posedge clk) begin
 		//INC <= (itr1 == N) ? 1'b0 : INC;
 		itr2 <= itr1;
 		itr3 <= itr2;
-		A1 <= (itr1 == 5'b00000) ? S2 : AB2;
+		A1 <= (itr1 == 5'b00000) ? S2 : AB2;	//-LR * dw
 		B1 <= lr;
-		A2 <= dz;
+		A2 <= dz;								//dz * x
 		B2 <= x[itr1];
-		R1 <= WL[itr2];
+		R1 <= WL[itr2];							//w + (-LR * dw)
 		R2 <= AB1;
-		WL[itr3] <= S1;
+		WL[itr3] <= S1;		//Weight update
 	end
 
 	else if ({FP,BP} == 2'b11) begin				//Backward Setup
@@ -117,7 +121,7 @@ always @ (posedge clk) begin
 		B2 <= 16'h00_00;
 		R1 <= 16'h00_00;
 		R2 <= 16'h00_00;
-		R3 <= OUT;
+		R3 <= OUT;					//Calculate dz
 		R4 <= (~y_true) + 1;
 		WL <= {w, b};
 	end
