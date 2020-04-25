@@ -126,6 +126,6 @@ endmodule // Sigmoid_16
 // end
 
 // always #10 in <= in + 16'h02_00;
-// always #80 $stop;
+// always #80 $finish;
 
 // endmodule // sigmoid_tb

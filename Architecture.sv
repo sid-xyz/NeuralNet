@@ -5,11 +5,12 @@ module Architecture #(parameter NX = 6, parameter NH = 30, parameter BITS = 16) 
 	input						clk,		//Clock
 	input						TR,			//Training Signal (from Control)
 	input						VL,			//Validation Signal (from Control)
+	input						END,		//Process Complete Signal (from Control)
 	input	[NX-1:0][BITS-1:0]	x,			//Input vector (from Pattern)
 	input	[BITS-1:0]			y,			//Output Label (from Pattern)
 	input	[BITS-1:0]			lr,			//Learning Rate (from Pattern)
-	//output	[BITS-1:0]			yhat,
-	output						yhat,
+	output	[BITS-1:0]			yhat,
+	output	[BITS-1:0]			Error,
 	output						S_Train,	//Training Pattern Complete (to Control)
 	output						S_Error		//Validation Pattern Complete (to Control)
 );
@@ -32,6 +33,7 @@ ArchCTRL archControl(
 	.clk(clk),
 	.TR(TR),
 	.VL(VL),
+	.END(END),
 	.FPH(FPH),
 	.FPO(FPO),
 	.BPH(BPH),
@@ -39,6 +41,8 @@ ArchCTRL archControl(
 	.S_Train(S_Train),
 	.S_Error(S_Error)
 );
+
+assign Error = (y == yhat) ? 0 : 1;
 
 initial begin
 	//He Initialisation: randn * sqrt[2/n_(l-1)]

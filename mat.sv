@@ -18,6 +18,6 @@ initial begin
 	B <= 16'hFC_FF;
 end
 
-always #10 $stop;
+always #10 $finish;
 
 endmodule // Mult_Test

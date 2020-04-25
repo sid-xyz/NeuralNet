@@ -11,7 +11,7 @@ module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 16) (
 	input	[BITS-1:0]			y_true,		//True output label
 	input	[BITS-1:0]			lr,			// -Learning Rate
 	output	[BITS-1:0]			y,			//Neuron output
-	output						yhat,		//Predicted label
+	output	[BITS-1:0]			yhat,		//Predicted label
 	output	[BITS-1:0]			dZ_out,		//dz of the neuron (to previous layer)
 	output	[N:0][BITS-1:0]		W_out		//Updated weights
 );
@@ -59,10 +59,10 @@ Sigmoid_16 sigmoidActFunc(
 	.z(val)
 );
 
-assign dZ_out = dz;			//dz of neuron
-assign W_out = WL;			//Updated weights
-assign yhat = ~ACT[15];		//Predicted class (1 or 0)
-assign y = OUT;				//Neuron output
+assign dZ_out = dz;					//dz of neuron
+assign W_out = WL;					//Updated weights
+assign yhat = ACT[15] ? 0 : 1;		//Predicted class (1 or 0)
+assign y = OUT;						//Neuron output
 
 always @ (posedge clk) begin
 	if ({FP,BP} == 2'b00) begin						//Forward Setup

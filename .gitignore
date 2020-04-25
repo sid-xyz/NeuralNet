@@ -1,9 +1,12 @@
 *
 !*.*
 .DS_Store
+Makefile
+*.v
 *.txt
 *.vcd
 *.gtkw
 *.evcd
 *.ghw
 *.zip
+*ignore*

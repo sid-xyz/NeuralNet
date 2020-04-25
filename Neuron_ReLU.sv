@@ -78,9 +78,9 @@ always @ (posedge clk) begin
 	end
 
 	else if ({FP,BP} == 2'b10) begin			//Forward Propagation
-		INC <= (itr1 == N) ? 1'b0 : INC;
 		itr1 = (INC) ? itr1 + 5'b00010 : 5'b00000;
 		itr2 = (INC) ? itr1 + 1 : 0;
+		INC = (itr1 == N) ? 1'b0 : INC;
 		A1 <= INC ? x[itr1] : 0;		//x * w
 		B1 <= INC ? w[itr1] : 0;
 		A2 <= INC ? x[itr2] : 0;
@@ -99,7 +99,7 @@ always @ (posedge clk) begin
 		itr1 <= itr1 + 5'b00001;
 		itr2 <= itr1;
 		itr3 <= itr2;
-		A1 <= AB2;			//-LR * dw
+		A1 <= dz;			//-LR * dw
 		B1 <= lr;
 		A2 <= dz;			//dz * x
 		B2 <= x[itr1];

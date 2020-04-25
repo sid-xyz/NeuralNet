@@ -32,7 +32,7 @@
 // 	B <= 16'h01_00;
 // end
 
-// always #100 $stop;
+// always #100 $finish;
 
 // endmodule // mult_tb
 
@@ -90,7 +90,7 @@ always begin
 	#20 VL <= 1'b1;
 	#20 VL <= 1'b0;
 	#440 ;
-	#20 $stop;
+	#20 $finish;
 end
 
 endmodule // AC_TB

@@ -63,7 +63,7 @@ always begin
 	#20 TR <= 1'b0;
 	#20 VL <= 1'b1;
 	#20 VL <= 1'b0;
-	#30 $stop;
+	#30 $finish;
 end
 
 endmodule // Pattern_TB

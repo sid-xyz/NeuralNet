@@ -46,7 +46,7 @@ always begin
 	#20 T <= 1'b1;
 	#20 T <= 1'b0;
 	#1150 ;
-	#20 $stop;
+	#20 $finish;
 end
 
 endmodule // Arch_TB

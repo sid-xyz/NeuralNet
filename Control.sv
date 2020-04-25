@@ -11,10 +11,11 @@ module Control #(parameter BITS = 16) (
 	input				Start,
 	output				TR,
 	output				VL,
-	output				SAVE
+	output				SAVE,
+	output				END
 );
 
-reg NT, NV, SW, RST;
+reg NT, NV, SW, RST, FIN;
 reg [BITS-1:0] E_Epoch, E_Min;
 reg [BITS-1:0] countTR, countVL, countEP;
 
@@ -27,6 +28,7 @@ assign E_FL = (countEP == EPOCH);
 assign TR = NT;
 assign VL = NV;
 assign SAVE = SW;
+assign END = FIN;
 
 initial begin
 	NT <= 1'b0;
@@ -37,6 +39,7 @@ initial begin
 	countTR <= 0;
 	countVL <= 0;
 	countEP <= 0;
+	FIN <= 0;
 end
 
 always @ (posedge clk) begin
@@ -47,6 +50,7 @@ always @ (posedge clk) begin
 		countTR <= 1;
 		countVL <= 0;
 		RST <= 1'b0;
+		FIN <= 0;
 	end
 
 	else if (S_Train & ~T_FL) begin
@@ -85,6 +89,16 @@ always @ (posedge clk) begin
 		RST <= 1'b1;
 		countTR <= 0;
 		countVL <= 0;
+	end
+
+	if (E_FL) begin
+		FIN <= 1'b1;
+		countTR <= 0;
+		countVL <= 0;
+		countEP <= 0;
+		NT <= 1'b0;
+		NV <= 1'b0;
+		SW <= 1'b0;
 	end
 end
 

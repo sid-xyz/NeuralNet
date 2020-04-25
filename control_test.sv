@@ -8,7 +8,7 @@ reg clk;
 reg [B-1:0] TRAIN, VALID, EPOCH;
 reg [B-1:0] ERR;
 reg ST, SE, START;
-wire TR, VL, SW;
+wire TR, VL, SW, FIN;
 	
 	
 Control #(.BITS(B)) CB(
@@ -22,7 +22,8 @@ Control #(.BITS(B)) CB(
 	.Start(START),
 	.TR(TR),
 	.VL(VL),
-	.SAVE(SW)
+	.SAVE(SW),
+	.END(FIN)
 );
 
 initial begin
@@ -44,7 +45,7 @@ always #10 clk <= ~clk;
 always begin
 	#10 START <= 1'b1;
 	#20 START <= 1'b0;
-	#2970 $stop;
+	#2970 $finish;
 end
 
 always @ (posedge clk) begin

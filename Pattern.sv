@@ -6,6 +6,8 @@ module Pattern #(parameter NX = 6, NH = 30, BITS = 16) (
 	input						TR,			//Training Signal (from Control)		
 	input						VL,			//Validation Signal (from Control)
 	input						SW,			//Store Weights signal (from Control)
+	input						START,		//Process Start Signal (from Control)
+	input						END,		//Process Complete Signal (from Control)
 	input	[NX:0][BITS-1:0]	W1,			//Weights - hidden layer (from Architecture)
 	input	[NH:0][BITS-1:0]	W2,			//Weights - output layer (from Architecture)
 	output	[BITS-1:0]			lr,			//-Learning Rate (to Architecture)
@@ -16,9 +18,10 @@ module Pattern #(parameter NX = 6, NH = 30, BITS = 16) (
 	output	[BITS-1:0]			EPOCH		//# Epochs (to Control)
 );
 
-parameter N_train = 7;		// #Train
-parameter N_validate = 3;	// #Valid
-parameter N_Epochs = 100;	// #Epoch
+// #Train, #Valid, #Epoch
+parameter N_train = 533;
+parameter N_validate = 177;
+parameter N_Epochs = 1;
 
 assign TRAIN = N_train;
 assign VALID = N_validate;
@@ -50,6 +53,13 @@ initial begin
 end
 
 always @ (posedge clk) begin
+	if (START | END) begin
+		dataX <= X_train[0];
+		dataY <= Y_train[0];
+		addr_t <= 0;
+		addr_v <= 0;
+	end
+
 	if (TR) begin					//Training
 		dataX <= X_train[addr_t];
 		dataY <= Y_train[addr_t];
@@ -74,6 +84,6 @@ end
 
 assign x = dataX;
 assign y = dataY;
-assign learning_rate = negLR;
+assign lr = negLR;
 
 endmodule // Pattern

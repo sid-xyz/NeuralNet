@@ -30,7 +30,7 @@
 // 	v[2] <= 16'h01_00;
 // end
 
-// always #10 $stop;
+// always #10 $finish;
 
 // endmodule // NN_TB
 
@@ -58,7 +58,7 @@ Neuron_ReLU #(.N(6), .BITS(16)) one(
 	.BP(BPH),
 	.dZ_in(16'h01_00),
 	.W_in(16'h00_80),
-	.lr(16'h01_00),
+	.lr(16'hFF_00),
 	.y(out),
 	.W_out(WB)
 );
@@ -68,12 +68,13 @@ Neuron_ReLU #(.N(6), .BITS(16)) one(
 // 	.x(x),
 // 	.w(w),
 // 	.b(b),
-// 	.FP(FPO),
-// 	.BP(BPO),
-// 	.y_true(16'h00_00),
+// 	.FP(FPH),
+// 	.BP(BPH),
+// 	.y_true(16'h01_00),
 // 	.lr(16'hFF_00),
 // 	.y(out),
-// 	.dZ(dz2)
+// 	.dZ_out(dz2),
+// 	.W_out(WB)
 // );
 
 ArchCTRL myAC(
@@ -116,7 +117,7 @@ always begin
 	//#20 VL <= 1'b1;
 	#40 VL <= 1'b0;
 	#440 ;
-	#20 $stop;
+	#20 $finish;
 end
 
 endmodule // Neuron_TB
