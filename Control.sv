@@ -1,49 +1,91 @@
 `timescale 1ns / 1ps
 
-module Validation(
-	input			clk,
-	input	[15:0]	VAL,
-	input	[15:0]	EPOCH,
-	input	[15:0]	error,
-	input			S_Error,
-	input			VC
+module Control #(parameter BITS = 16) (
+	input				clk,
+	input	[BITS-1:0]	TRAIN,
+	input	[BITS-1:0]	VALID,
+	input	[BITS-1:0]	EPOCH,
+	input	[BITS-1:0]	Error,
+	input				S_Train,
+	input				S_Error,
+	input				Start,
+	output				TR,
+	output				VL,
+	output				SAVE
 );
 
-reg	[15:0]	countVAL, countEPC, min_Error, E_Epoch;
-wire EC, SC;
+reg NT, NV, SW, RST;
+reg [BITS-1:0] E_Epoch, E_Min;
+reg [BITS-1:0] countTR, countVL, countEP;
+
+wire T_FL, V_FL, E_FL;
+
+assign T_FL = (countTR == TRAIN);
+assign V_FL = (countVL == VALID);
+assign E_FL = (countEP == EPOCH);
+
+assign TR = NT;
+assign VL = NV;
+assign SAVE = SW;
 
 initial begin
-	countVAL = 16'h0000;
-	countEPC = 16'h0000;
-	E_Epoch = 16'h0000;
-	min_Error = 16'h7F_FF;
+	NT <= 1'b0;
+	NV <= 1'b0;
+	SW <= 1'b0;
+	E_Epoch <= 0;
+	E_Min <= 16'h7F_FF;
+	countTR <= 0;
+	countVL <= 0;
+	countEP <= 0;
 end
-
-assign EC = (countVAL == VAL);
-assign SC = (countEPC == EPOCH);
 
 always @ (posedge clk) begin
-	if (VC & S_Error) begin
-		countVAL = countVAL + 16'h0001;
-		E_Epoch <= E_Epoch + error;
+	if (Start | RST) begin
+		NT <= 1'b1;
+		NV <= 1'b0;
+		SW <= 1'b0;
+		countTR <= 1;
+		countVL <= 0;
+		RST <= 1'b0;
 	end
 
-	else if (EC) begin
-		if (E_Epoch < min_Error) begin
-		min_Error <= E_Epoch;
-		//Store Network
+	else if (S_Train & ~T_FL) begin
+		countTR <= countTR + 1;
+		NT <= 1'b1;
+		NV <= 1'b0;
+		SW <= 1'b0;
+	end
+
+	else if (NT) begin
+		NT <= 1'b0;
+	end
+	
+	else if (T_FL & (S_Train | S_Error & ~V_FL)) begin
+		countVL <= countVL + 1;
+		NV <= 1'b1;
+		NT <= 1'b0;
+		SW <= 1'b0;
+		if (S_Error) begin
+			E_Epoch <= E_Epoch + Error;
 		end
-
-		countVAL <= 16'h0000;
-		countEPC <= countEPC + 16'h0001;
-		E_Epoch <= 16'h0000;
 	end
 
-	else if (SC) begin
-		// Send Stored Network
+	else if (NV) begin
+		NV <= 1'b0;
+	end
 
-		//End
+	else if (T_FL & V_FL & S_Error & ~E_FL) begin
+		countEP <= countEP + 1;
+		NT <= 0;
+		NV <= 0;
+		if (E_Epoch < E_Min) begin
+			E_Min <= E_Epoch;
+			SW <= 1'b1;
+		end
+		RST <= 1'b1;
+		countTR <= 0;
+		countVL <= 0;
 	end
 end
 
-endmodule // Validation
+endmodule
