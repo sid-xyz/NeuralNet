@@ -2,40 +2,40 @@
 
 //Pattern Block
 module Pattern #(parameter NX = 6, NH = 30, BITS = 16) (
-	input						clk,		//Clock
-	input						TR,			//Training Signal (from Control)		
-	input						VL,			//Validation Signal (from Control)
-	input						SW,			//Store Weights signal (from Control)
-	input						START,		//Process Start Signal (from Control)
-	input						END,		//Process Complete Signal (from Control)
-	input	[NX:0][BITS-1:0]	W1,			//Weights - hidden layer (from Architecture)
-	input	[NH:0][BITS-1:0]	W2,			//Weights - output layer (from Architecture)
-	output	[BITS-1:0]			lr,			//-Learning Rate (to Architecture)
-	output	[NX-1:0][BITS-1:0]	x,			//Neural Network input (to Architecture)
-	output	[BITS-1:0]			y,			//Output label (to Architecture)
-	output	[BITS-1:0]			TRAIN,		//# Training samples (to Control)
-	output	[BITS-1:0]			VALID,		//# Validation samples (to Control)
-	output	[BITS-1:0]			EPOCH		//# Epochs (to Control)
+	input								clk,		//Clock
+	input								TR,			//Training Signal (from Control)		
+	input								VL,			//Validation Signal (from Control)
+	input								SW,			//Store Weights signal (from Control)
+	input								START,		//Process Start Signal (from Control)
+	input								END,		//Process Complete Signal (from Control)
+	input	[NH-1:0][NX:0][BITS-1:0]	W1,			//Weights - hidden layer (from Architecture)
+	input	[NH:0][BITS-1:0]			W2,			//Weights - output layer (from Architecture)
+	output	[BITS-1:0]					lr,			//-Learning Rate (to Architecture)
+	output	[NX-1:0][BITS-1:0]			x,			//Neural Network input (to Architecture)
+	output	[BITS-1:0]					y,			//Output label (to Architecture)
+	output	[BITS-1:0]					TRAIN,		//# Training samples (to Control)
+	output	[BITS-1:0]					VALID,		//# Validation samples (to Control)
+	output	[BITS-1:0]					EPOCH		//# Epochs (to Control)
 );
 
 // #Train, #Valid, #Epoch
 parameter N_train = 533;
 parameter N_validate = 177;
-parameter N_Epochs = 1;
+parameter N_Epochs = 100;
 
 assign TRAIN = N_train;
 assign VALID = N_validate;
 assign EPOCH = N_Epochs;
 
 // Training & Validation data
-reg [NX-1:0][BITS-1:0]	X_train	[N_train-1:0];
-reg 		[BITS-1:0]	Y_train	[N_train-1:0];
-reg [NX-1:0][BITS-1:0]	X_val 	[N_validate-1:0];
-reg 		[BITS-1:0] 	Y_val	[N_validate-1:0];
+reg [NX-1:0][BITS-1:0] X_train [N_train-1:0];
+reg [BITS-1:0] Y_train [N_train-1:0];
+reg [NX-1:0][BITS-1:0] X_val [N_validate-1:0];
+reg [BITS-1:0] Y_val [N_validate-1:0];
 
 // NN Weights
-reg	[NX:0][BITS-1:0]	WH;
-reg	[NH:0][BITS-1:0]	WO;
+reg	[NH-1:0][NX:0][BITS-1:0] WH;
+reg	[NH:0][BITS-1:0] WO;
 
 reg [NX-1:0][BITS-1:0] dataX;	//NN input data
 reg [BITS-1:0] dataY;			//Output label

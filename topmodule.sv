@@ -11,7 +11,7 @@ wire [BITS-1:0] Error;
 
 wire [BITS-1:0] lr;
 
-wire [NX:0][BITS-1:0] W1;
+wire [NH-1:0][NX:0][BITS-1:0] W1;
 wire [NH:0][BITS-1:0] W2;
 
 wire [NX-1:0][BITS-1:0] x;
@@ -62,7 +62,9 @@ Architecture #(.NX(NX), .NH(NH), .BITS(BITS)) ArchBlock(
 	.yhat(out),
 	.Error(Error),
 	.S_Train(S_Train),
-	.S_Error(S_Error)
+	.S_Error(S_Error),
+	.WH(W1),
+	.WO(W2)
 );
 	
 endmodule // TopModule

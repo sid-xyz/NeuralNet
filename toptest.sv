@@ -18,12 +18,13 @@ end
 
 always #10 clk <= ~clk;
 
-always #20000 $finish;
+always #70326050 $finish;
 
 always begin
 	#10 START <= 1'b1;
 	#20 START <= 1'b0;
-	#19970 ;
+	//#69999970 ;
+	#70326020 ;
 end
 
 endmodule

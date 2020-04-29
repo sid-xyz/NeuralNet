@@ -49,6 +49,7 @@ always @ (posedge clk) begin
 		SW <= 1'b0;
 		countTR <= 1;
 		countVL <= 0;
+		E_Epoch <= 0;
 		RST <= 1'b0;
 		FIN <= 0;
 	end

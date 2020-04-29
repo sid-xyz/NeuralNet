@@ -2,24 +2,26 @@
 
 // Architecture Block
 module Architecture #(parameter NX = 6, parameter NH = 30, parameter BITS = 16) (
-	input						clk,		//Clock
-	input						TR,			//Training Signal (from Control)
-	input						VL,			//Validation Signal (from Control)
-	input						END,		//Process Complete Signal (from Control)
-	input	[NX-1:0][BITS-1:0]	x,			//Input vector (from Pattern)
-	input	[BITS-1:0]			y,			//Output Label (from Pattern)
-	input	[BITS-1:0]			lr,			//Learning Rate (from Pattern)
-	output	[BITS-1:0]			yhat,
-	output	[BITS-1:0]			Error,
-	output						S_Train,	//Training Pattern Complete (to Control)
-	output						S_Error		//Validation Pattern Complete (to Control)
+	input								clk,		//Clock
+	input								TR,			//Training Signal (from Control)
+	input								VL,			//Validation Signal (from Control)
+	input								END,		//Process Complete Signal (from Control)
+	input	[NX-1:0][BITS-1:0]			x,			//Input vector (from Pattern)
+	input	[BITS-1:0]					y,			//Output Label (from Pattern)
+	input	[BITS-1:0]					lr,			//Learning Rate (from Pattern)
+	output	[BITS-1:0]					yhat,
+	output	[BITS-1:0]					Error,
+	output								S_Train,	//Training Pattern Complete (to Control)
+	output								S_Error,	//Validation Pattern Complete (to Control)
+	output	[NH-1:0][NX:0][BITS-1:0]	WH,
+	output	[NH:0][BITS-1:0]			WO
 );
 
 wire FPH, FPO, BPH, BPO;	// Forward, Backward propagation flags
 wire [BITS-1:0] dz2;		// dz of output neuron
 
 // Updated Weights
-wire [NX:0][BITS-1:0] WH [NH-1:0];
+wire [NH-1:0][NX:0][BITS-1:0] WH;
 wire [NH:0][BITS-1:0] WO;
 
 // Weights

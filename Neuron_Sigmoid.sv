@@ -59,10 +59,10 @@ Sigmoid_16 sigmoidActFunc(
 	.z(val)
 );
 
-assign dZ_out = dz;					//dz of neuron
-assign W_out = WL;					//Updated weights
-assign yhat = ACT[15] ? 0 : 1;		//Predicted class (1 or 0)
-assign y = OUT;						//Neuron output
+assign dZ_out = dz;							//dz of neuron
+assign W_out = WL;							//Updated weights
+assign yhat = ACT[15] ? 0 : 16'h0100;		//Predicted class (1 or 0)
+assign y = OUT;								//Neuron output
 
 always @ (posedge clk) begin
 	if ({FP,BP} == 2'b00) begin						//Forward Setup
@@ -119,7 +119,7 @@ always @ (posedge clk) begin
 		B1 <= 16'h00_00;
 		A2 <= 16'h00_00;
 		B2 <= 16'h00_00;
-		R1 <= 16'h00_00;
+		R1 <= b;//16'h00_00;
 		R2 <= 16'h00_00;
 		R3 <= OUT;					//Calculate dz
 		R4 <= (~y_true) + 1;
