@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 //Neuron with ReLU activation function (hidden layer)
-module Neuron_ReLU #(parameter N = 6, parameter BITS = 16) (
+module Neuron_ReLU #(parameter N = 6, parameter BITS = 32) (
 	input						clk,		//Clock
 	input						FP,			//Forward prop signal
 	input						BP,			//Backprop signal
@@ -29,31 +29,31 @@ wire [BITS-1:0] AB1, AB2, S1, S2;	//Mult, Adder outputs
 reg [BITS-1:0] A1, B1, A2, B2;		//Mult inputs
 reg [BITS-1:0] R1, R2, R3, R4;		//Adder inputs
 
-Multiplier M1(
+Multiplier #(.BITS(BITS)) M1(
 	.A(A1),
 	.B(B1),
 	.AB(AB1)
 );
 
-Multiplier M2(
+Multiplier #(.BITS(BITS)) M2(
 	.A(A2),
 	.B(B2),
 	.AB(AB2)
 );
 
-Adder AD1(
+Adder #(.BITS(BITS)) AD1(
 	.A(R1),
 	.B(R2),
 	.C(S1)
 );
 
-Adder AD2(
+Adder #(.BITS(BITS)) AD2(
 	.A(R3),
 	.B(R4),
 	.C(S2)
 );
 
-ReLU reluActFunc(
+ReLU #(.BITS(BITS)) reluActFunc(
 	.x(S2),
 	.z(val)
 );
@@ -71,9 +71,9 @@ always @ (posedge clk) begin
 		B1 <= w[itr1];
 		A2 <= x[itr2];
 		B2 <= w[itr2];
-		R1 <= 16'h00_00;
-		R2 <= 16'h00_00;
-		R3 <= 16'h00_00;
+		R1 <= 32'h0000_0000;
+		R2 <= 32'h0000_0000;
+		R3 <= 32'h0000_0000;
 		R4 <= b;
 	end
 
@@ -113,14 +113,14 @@ always @ (posedge clk) begin
 		itr2 <= 5'b00000;
 		itr3 <= 5'b00000;
 		INC <= 1'b1;
-		A1 <= 16'h00_00;
-		B1 <= 16'h00_00;
+		A1 <= 32'h0000_0000;
+		B1 <= 32'h0000_0000;
 		A2 <= W_in;			//Calculate dz
 		B2 <= dZ_in;
-		R1 <= 16'h00_00;
-		R2 <= 16'h00_00;
-		R3 <= 16'h00_00;
-		R4 <= 16'h00_00;
+		R1 <= 32'h0000_0000;
+		R2 <= 32'h0000_0000;
+		R3 <= 32'h0000_0000;
+		R4 <= 32'h0000_0000;
 		WL <= {w, b};
 	end
 end

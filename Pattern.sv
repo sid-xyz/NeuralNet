@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 //Pattern Block
-module Pattern #(parameter NX = 6, NH = 30, BITS = 16) (
+module Pattern #(parameter NX = 6, NH = 6, BITS = 32) (
 	input								clk,		//Clock
 	input								TR,			//Training Signal (from Control)		
 	input								VL,			//Validation Signal (from Control)
@@ -43,13 +43,14 @@ reg [BITS-1:0] negLR;			//-learning rate
 reg [15:0] addr_t, addr_v;		//iterators
 
 initial begin
-	$readmemh("xdata.txt", X_train);
-	$readmemh("ydata.txt", Y_train);
-	$readmemh("xval.txt", X_val);
-	$readmemh("yval.txt", Y_val);
-	negLR <= 16'hFF_00;
+	$readmemh("xdata32.txt", X_train);
+	$readmemh("ydata32.txt", Y_train);
+	$readmemh("xval32.txt", X_val);
+	$readmemh("yval32.txt", Y_val);
+	negLR <= 32'hFFFF_FC00; // -0.015625
 	addr_t <= 16'h0000;
 	addr_v <= 16'h0000;
+	$monitor("time = %0t:\nWH = %0h\nWO = %0h\n", $time, WH, WO);
 end
 
 always @ (posedge clk) begin

@@ -49,33 +49,33 @@ reg [B-1:0] b;
 wire [B-1:0] out, dz2;
 wire [N:0][B-1:0] WB;
 
-Neuron_ReLU #(.N(6), .BITS(16)) one(
-	.clk(clk),
-	.x(x),
-	.w(w),
-	.b(b),
-	.FP(FPH),
-	.BP(BPH),
-	.dZ_in(16'h01_00),
-	.W_in(16'h00_80),
-	.lr(16'hFF_00),
-	.y(out),
-	.W_out(WB)
-);
-
-// Neuron_Sigmoid #(.N(N), .BITS(B)) one(
+// Neuron_ReLU #(.N(6), .BITS(16)) one(
 // 	.clk(clk),
 // 	.x(x),
 // 	.w(w),
 // 	.b(b),
 // 	.FP(FPH),
 // 	.BP(BPH),
-// 	.y_true(16'h01_00),
+// 	.dZ_in(16'h01_00),
+// 	.W_in(16'h00_80),
 // 	.lr(16'hFF_00),
 // 	.y(out),
-// 	.dZ_out(dz2),
 // 	.W_out(WB)
 // );
+
+Neuron_Sigmoid #(.N(N), .BITS(B)) one(
+	.clk(clk),
+	.x(x),
+	.w(w),
+	.b(b),
+	.FP(FPH),
+	.BP(BPH),
+	.y_true(16'h01_00),
+	.lr(16'hFF_FD),
+	.y(out),
+	.dZ_out(dz2),
+	.W_out(WB)
+);
 
 ArchCTRL myAC(
 	.clk(clk),
@@ -94,16 +94,16 @@ initial begin
 	x[0] <= 16'hFE_EF;
 	x[1] <= 16'h02_01;
 	x[2] <= 16'h01_00;
-	x[3] <= 16'h01_00;
-	x[4] <= 16'h01_00;
-	x[5] <= 16'h01_00;
+	x[3] <= 16'h00_7D;
+	x[4] <= 16'hFB_00;
+	x[5] <= 16'h00_8A;
 	b <= 16'h00_00;
-	w[0] <= 16'h04_00;
+	w[0] <= 16'hFF_00;
 	w[1] <= 16'hFD_00;
-	w[2] <= 16'h01_00;
+	w[2] <= 16'h01_5B;
 	w[3] <= 16'h01_00;
-	w[4] <= 16'h01_00;
-	w[5] <= 16'h01_00;
+	w[4] <= 16'h00_6F;
+	w[5] <= 16'hFF_AC;
 	TR <= 1'b0;
 	VL <= 1'b0;
 end

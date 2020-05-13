@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Control #(parameter BITS = 16) (
+module Control #(parameter BITS = 32) (
 	input				clk,
 	input	[BITS-1:0]	TRAIN,
 	input	[BITS-1:0]	VALID,
@@ -35,7 +35,7 @@ initial begin
 	NV <= 1'b0;
 	SW <= 1'b0;
 	E_Epoch <= 0;
-	E_Min <= 16'h7F_FF;
+	E_Min <= 32'hFFFFFFFF;
 	countTR <= 0;
 	countVL <= 0;
 	countEP <= 0;
@@ -65,7 +65,7 @@ always @ (posedge clk) begin
 		NT <= 1'b0;
 	end
 	
-	else if (T_FL & (S_Train | S_Error & ~V_FL)) begin
+	else if (T_FL & (S_Train | S_Error) & ~V_FL) begin
 		countVL <= countVL + 1;
 		NV <= 1'b1;
 		NT <= 1'b0;

@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 //Neuron with Sigmoid activation function (output layer)
-module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 16) (
+module Neuron_Sigmoid #(parameter N = 30, parameter BITS = 32) (
 	input						clk,		//Clock
 	input						FP,			//Forward prop signal
 	input						BP,			//Backprop signal
@@ -30,25 +30,25 @@ wire [BITS-1:0] AB1, AB2, S1, S2;	//Mult, Adder outputs
 reg [BITS-1:0] A1, B1, A2, B2;		//Mult inputs
 reg [BITS-1:0] R1, R2, R3, R4;		//Adder inputs
 
-Multiplier M1(
+Multiplier #(.BITS(BITS)) M1(
 	.A(A1),
 	.B(B1),
 	.AB(AB1)
 );
 
-Multiplier M2(
+Multiplier #(.BITS(BITS)) M2(
 	.A(A2),
 	.B(B2),
 	.AB(AB2)
 );
 
-Adder AD1(
+Adder #(.BITS(BITS)) AD1(
 	.A(R1),
 	.B(R2),
 	.C(S1)
 );
 
-Adder AD2(
+Adder #(.BITS(BITS)) AD2(
 	.A(R3),
 	.B(R4),
 	.C(S2)
@@ -61,7 +61,7 @@ Sigmoid_16 sigmoidActFunc(
 
 assign dZ_out = dz;							//dz of neuron
 assign W_out = WL;							//Updated weights
-assign yhat = ACT[15] ? 0 : 16'h0100;		//Predicted class (1 or 0)
+assign yhat = ACT[15] ? 0 : 32'h00010000;	//Predicted class (1 or 0)
 assign y = OUT;								//Neuron output
 
 always @ (posedge clk) begin
@@ -73,9 +73,9 @@ always @ (posedge clk) begin
 		B1 <= w[itr1];
 		A2 <= x[itr2];
 		B2 <= w[itr2];
-		R1 <= 16'h00_00;
-		R2 <= 16'h00_00;
-		R3 <= 16'h00_00;
+		R1 <= 32'h0000_0000;
+		R2 <= 32'h0000_0000;
+		R3 <= 32'h0000_0000;
 		R4 <= b;
 	end
 
@@ -115,12 +115,12 @@ always @ (posedge clk) begin
 		itr2 <= 5'b00000;
 		itr3 <= 5'b00000;
 		INC <= 1'b1;
-		A1 <= 16'h00_00;
-		B1 <= 16'h00_00;
-		A2 <= 16'h00_00;
-		B2 <= 16'h00_00;
-		R1 <= b;//16'h00_00;
-		R2 <= 16'h00_00;
+		A1 <= 32'h0000_0000;
+		B1 <= 32'h0000_0000;
+		A2 <= 32'h0000_0000;
+		B2 <= 32'h0000_0000;
+		R1 <= b;
+		R2 <= 32'h0000_0000;
 		R3 <= OUT;					//Calculate dz
 		R4 <= (~y_true) + 1;
 		WL <= {w, b};

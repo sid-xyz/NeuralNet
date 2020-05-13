@@ -48,11 +48,12 @@ assign Error = (y == yhat) ? 0 : 1;
 
 initial begin
 	//He Initialisation: randn * sqrt[2/n_(l-1)]
-	$readmemh("w1.txt", W1);	//Hidden layer weights (generated using MATLAB randn)
+	$readmemh("w1h6_32.txt", W1);	//Hidden layer weights (generated using MATLAB randn)
 
 	//Xavier Initialisation: randn * sqrt[1/n_(l-1)]
 	//Output layer weights (generated using MATLAB randn)
-	W2 <= 496'hffdc_ffe0_003c_ffda_ffc6_000a_005e_0001_000e_ffd4_004e_0006_0019_ffd4_0028_0012_ffca_0002_ffeb_0005_fff4_fff7_ffd0_fff1_0024_0052_ffca_006f_0047_0008__0000;
+	//W2 <= 112'h00a6_ffac_0049_0057_ffe7_0017__0000;
+	W2 <= 224'hfffff0bc_ffffc866_0000afcd_ffffa47a_ffffcd70_ffffb596__00000000;
 end
 
 always @ (posedge clk) begin
@@ -66,30 +67,6 @@ always @ (posedge clk) begin
 		W1[3] <= WH[3];
 		W1[4] <= WH[4];
 		W1[5] <= WH[5];
-		W1[6] <= WH[6];
-		W1[7] <= WH[7];
-		W1[8] <= WH[8];
-		W1[9] <= WH[9];
-		W1[10] <= WH[10];
-		W1[11] <= WH[11];
-		W1[12] <= WH[12];
-		W1[13] <= WH[13];
-		W1[14] <= WH[14];
-		W1[15] <= WH[15];
-		W1[16] <= WH[16];
-		W1[17] <= WH[17];
-		W1[18] <= WH[18];
-		W1[19] <= WH[19];
-		W1[20] <= WH[20];
-		W1[21] <= WH[21];
-		W1[22] <= WH[22];
-		W1[23] <= WH[23];
-		W1[24] <= WH[24];
-		W1[25] <= WH[25];
-		W1[26] <= WH[26];
-		W1[27] <= WH[27];
-		W1[28] <= WH[28];
-		W1[29] <= WH[29];
 	end
 end
 
@@ -128,4 +105,5 @@ Neuron_Sigmoid #(.N(NH), .BITS(BITS)) OutputUnit (
 			.W_out(WO)
 );
 
+//
 endmodule // Architecture
